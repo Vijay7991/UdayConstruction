@@ -1,0 +1,27 @@
+// Paste this into Firebase Console > Firestore Database > Rules
+// Then click Publish.
+//
+// What it does:
+//  - Anyone (anonymous web visitor) can CREATE a document in /leads,
+//    but only if the document has the required shape (name + phone + createdAt).
+//  - Nobody can READ, UPDATE or DELETE leads from the client.
+//    You view leads from the Firebase Console (Build > Firestore Database > Data).
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /leads/{leadId} {
+      allow create: if
+        request.resource.data.keys().hasAll(['name','phone','createdAt'])
+        && request.resource.data.name  is string
+        && request.resource.data.name.size()  > 0
+        && request.resource.data.name.size()  < 80
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 7
+        && request.resource.data.phone.size() <= 20;
+
+      allow read, update, delete: if false;
+    }
+  }
+}
